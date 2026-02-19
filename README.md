@@ -10,9 +10,9 @@ In order to run the SQL code you will need to:
 2. Create a new database titled "Portfolio"
 3. All 3 files must be imported as flat files into SQL
 4. The names of each table are:
-   Crime_Data_Raw = "Crime_Data_from_2020_to_Present.csv"
-   Crime_Codes = "Crime_Codes.csv"
-   MO_Codes = "MO_Codes.csv"
+Crime_Data_Raw = "Crime_Data_from_2020_to_Present.csv"
+Crime_Codes = "Crime_Codes.csv"
+MO_Codes = "MO_Codes.csv"
 
 First run the file titled "Renaming_Columns.sql" - This was a bit of data cleanup
 Then you can ran any and all parts of the "CrimeStats.sql". There are instructions inside for what each piece does.
