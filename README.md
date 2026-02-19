@@ -2,6 +2,7 @@
 This is a portfolio to show off my skills as a data analyst. Includes SQL and Python.
 
 **SQL**
+
 I wrote and ran the code in the Microsoft SQL Server Management Studio (21.6.17)
 
 In order to run the SQL code you will need to:
@@ -21,5 +22,7 @@ First run the file titled "Renaming_Columns.sql" - This was a bit of data cleanu
 Then you can ran any and all parts of the "CrimeStats.sql". There are instructions inside for what each piece does.
 
 **Python**
+
+
 
 
