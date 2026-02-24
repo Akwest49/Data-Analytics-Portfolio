@@ -1,10 +1,5 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# # This file is meant to showcase visualizations based on the SQL files that belong to this portfolio.
-# # You can run this file with the 3 CSV files on Github. While it is meant to compliment the SQL file, you can see most of the same data in this file alone.
-
-# In[79]:
+# This file is meant to showcase visualizations based on the SQL files that belong to this portfolio.
+# You can run this file with the 3 CSV files on Github. While it is meant to compliment the SQL file, you can see most of the same data in this file alone.
 
 
 #importing all the libraries we may need
@@ -14,18 +9,27 @@ import numpy as np
 import matplotlib.pyplot as pplot
 import matplotlib.ticker as mticker
 
-# In[80]:
+#adding a few mods to make the read_csv generic
+import os
+import zipfile #one file is too large for github and had to be zipped
 
+# Get the path of the current script
+script_dir = os.path.dirname(__file__)
 
-#Let's put each data frame into a variable
-#You will need to replace these locations!!!
-CStats = pd.read_csv(r"C:/Users/adkwe/Documents/Data Portfolio/Data Set Options/Crime_Data_from_2020_to_Present.csv")
-CCodes = pd.read_csv(r"C:/Users/adkwe/Documents/Data Portfolio/Data Set Options/Crime_Codes.csv")
-MOCodes = pd.read_csv(r"C:/Users/adkwe/Documents/Data Portfolio/Data Set Options/MO_Codes.csv")
+# Paths to CSV files in the portfolio
+crime_codes_path = os.path.join(script_dir, "data", "Crime_Codes.csv")
+mo_codes_path = os.path.join(script_dir, "data", "MO_Codes.csv")
+zip_path = os.path.join(script_dir, "data", "Crime_Data_from_2020_to_Present.zip")
 
+# Read CSVs
+CCodes = pd.read_csv(crime_codes_path)
+MOCodes = pd.read_csv(mo_codes_path)
 
-# In[81]:
-
+# Read CSV from ZIP
+with zipfile.ZipFile(zip_path, 'r') as z:
+    print("Files in ZIP:", z.namelist())
+    with z.open(z.namelist()[0]) as f:  # read the first CSV inside the ZIP
+        CStats = pd.read_csv(f)
 
 #A quick cleaning tool
 CStats.columns = CStats.columns.str.strip().str.replace(' ', '_')
@@ -33,9 +37,7 @@ CCodes.columns = CCodes.columns.str.strip().str.replace(' ', '_')
 MOCodes.columns = MOCodes.columns.str.strip().str.replace(' ', '_')
 
 
-# ### The first thing we need to do is replicate the SQL file where we cleaned up the names of the columns.
-
-# In[82]:
+# The first thing we need to do is replicate the SQL file where we cleaned up the names of the columns.
 
 
 CStats.rename(columns={'Rpt_Dist_No': 'District_No'}, inplace=True)
@@ -53,66 +55,42 @@ CStats.rename(columns={'Premis_Desc': 'Premisis_Desc'}, inplace=True)
 CStats.rename(columns={'Weapon_Used_Cd': 'Weapon_Code'}, inplace=True)
 
 
-# ### Let's verify the new names
-
-# In[83]:
+# Let's verify the new names
 
 
 CStats.columns.tolist()
 
 
-# ### Now we can take a look at the DFs
-
-# In[84]:
+# Now we can take a look at the DFs
 
 
 CStats
 
-
-# In[85]:
-
-
 MOCodes
-
-
-# In[86]:
-
 
 CCodes
 
 
-# ### Everything looks good, but we need to verify that the column types are correct.
-
-# In[87]:
+# Everything looks good, but we need to verify that the column types are correct.
 
 
 CStats.info()
 
 
-# ### We now see that the dates were not recognized so we need to fix this manually.
+# We now see that the dates were not recognized so we need to fix this manually.
 
-# In[88]:
-
-
-CStats['Date_Rptd'] = pd.to_datetime(CStats['Date_Rptd'])
-CStats['DATE_OCC'] = pd.to_datetime(CStats['DATE_OCC'])
+CStats['Date_Rptd'] = pd.to_datetime(CStats['Date_Rptd'], format='%m/%d/%Y %I:%M:%S %p')
+CStats['DATE_OCC'] = pd.to_datetime(CStats['DATE_OCC'], format='%m/%d/%Y %I:%M:%S %p')
 CStats['TIME_OCC'] = pd.to_datetime(
     CStats['TIME_OCC'].astype(str).str.zfill(4),
     format='%H%M').dt.time
 CStats.info()
 
-
-# In[89]:
-
-
 CStats
 
 
-# ### Perfect! Now we can create some visualizations based on the SQL data we created.
-# ### First thing is Crimes by Year
-
-# In[90]:
-
+#  Perfect! Now we can create some visualizations based on the SQL data we created.
+#  First thing is Crimes by Year
 
 #First we can add a year column
 CStats['OCC_Year'] = CStats['DATE_OCC'].dt.year
@@ -122,31 +100,28 @@ crimes_per_year = CStats['OCC_Year'].value_counts().sort_index()
 
 crimes_per_year = crimes_per_year.iloc[:-1]  # drops 2025, the data is incomplete
 
-
-# In[91]:
-
-
 #In this cell we will plot our chart
 #I ran the chart a few times and each time added a new parameter to make it look nicer
+#In this cell we will plot our chart
 pplot.figure(figsize=(10,6))
-colors = sb.color_palette("bright", len(crimes_per_year)) #The first time it was all the same color, and I wanted each year to be different
-sb.barplot(x=crimes_per_year.index, y=crimes_per_year.values, palette = colors)
 
-pplot.xlabel('Year', labelpad=10, fontsize=15) #The labels were small and didn't look good, so I added size and padding
+colors = sb.color_palette("bright", len(crimes_per_year))  # one color per year
+
+# Use matplotlib directly instead of seaborn for the bars
+pplot.bar(x=crimes_per_year.index, height=crimes_per_year.values, color=colors)
+
+pplot.xlabel('Year', labelpad=10, fontsize=15)
 pplot.ylabel('Number of Crimes', labelpad=10, fontsize=15)
 pplot.title('Number of Crimes per Year', fontsize=30)
 pplot.xticks(rotation=45)
-pplot.gca().yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f'{int(x/1000)}k')) #the raw numbers are hard to read at a glance
-#so I truncated them
+pplot.gca().yaxis.set_major_formatter(
+    mticker.FuncFormatter(lambda x, _: f'{int(x/1000)}k')
+)
 pplot.show()
 
 
-# ### The crime data here is easy to see now. Crimes in California increased from 2020 to 2022. There was a small dropoff in 2023 and then a severe drop in 2024.
-# 
-# ### Now let's take a look at the types of crimes committed
-
-# In[92]:
-
+# The crime data here is easy to see now. Crimes in California increased from 2020 to 2022. There was a small dropoff in 2023 and then a severe drop in 2024. 
+#  Now let's take a look at the types of crimes committed
 
 #The first thing we need to do is a merge (Python's version of a Join)
 Merged_Codes = CStats.merge(CCodes, left_on = 'Crime_Code', right_on = 'Code', how = 'left')
@@ -154,16 +129,10 @@ Merged_Codes
 #If you scroll to the end you can see the added info
 
 
-# In[93]:
-
-
 #Now we need to count the crime codes - the list provided for us seems to be incomplete so we will only look at named codes
 Code_Count = Merged_Codes['Code'].value_counts().head(10).reset_index()
 Code_Count.columns = ['Crime_Code','Instances']
 Code_Count = Code_Count.merge(CCodes[['Code', 'Description', 'Category']], left_on = 'Crime_Code', right_on = 'Code', how = 'left')
-
-
-# In[94]:
 
 
 #Here we chart
@@ -184,15 +153,11 @@ pplot.gca().yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f'{int(
 pplot.show()
 
 
-# ### What can we learn from this chart?
-# ### Most of the crime is theft, with Auto thefts being the most by a longshot.
-# ### However, there are a few violent crimes here as well.
+#  What can we learn from this chart?
+#  Most of the crime is theft, with Auto thefts being the most by a longshot.
+#  However, there are a few violent crimes here as well.
 
-# ### The next section takes a deeper look into demographics.
-# 
-
-# In[96]:
-
+#  The next section takes a deeper look into demographics.
 
 #First we recreate the buckets like we had in SQL
 age_bins = [1, 18, 22, 60, np.inf]
@@ -206,13 +171,9 @@ BGender = CStats[CStats['Vict_Sex'].isin(['M','F'])]
 BGender = BGender[BGender['age_group'].notna()]
 
 #Now we can create a DF that groups everything for us
-demog_crime = (BGender.groupby(['AREA_NAME', 'Vict_Sex', 'age_group']).size().reset_index(name='Incidents'))
+demog_crime = (BGender.groupby(['AREA_NAME', 'Vict_Sex', 'age_group'], observed=True).size().reset_index(name='Incidents'))
 #And let's take a look
 demog_crime
-
-
-# In[98]:
-
 
 #This chart can tell us a lot but it's a little messy
 #Let's try a pivot table and make it a little easier to read
@@ -220,12 +181,10 @@ demog_pivot = demog_crime.pivot_table(
     index = ['AREA_NAME','age_group'],
     columns = ['Vict_Sex'],
     values = ['Incidents'],
-    fill_value = 'N/A'
+    fill_value = 'N/A',
+    observed=True
 )
 demog_pivot
-
-
-# In[103]:
 
 
 #Ok, so the data is nice to read but not visually appealing.
@@ -236,17 +195,14 @@ top5_locations = BGender['AREA_NAME'].value_counts().nlargest(5).index
 top5_locations
 
 
-# In[105]:
-
-
 #Now that we have our locations let's store all the data for those places in a new DF for our chart
 top5_stats = BGender[BGender['AREA_NAME'].isin(top5_locations)]
 
 #Now we can run the group by and then the pivot
 top5_demog = (
-    top5_stats.groupby(['AREA_NAME', 'Vict_Sex', 'age_group']).size().reset_index(name='Incidents') )
+    top5_stats.groupby(['AREA_NAME', 'Vict_Sex', 'age_group'], observed=True).size().reset_index(name='Incidents') )
 
-#now we add a column with percentages of crime in that area per age group
+#Now we add a column with percentages of crime in that area per age group
 top5_demog['percent'] = (
     top5_demog.groupby(['AREA_NAME', 'Vict_Sex'])['Incidents'].transform(lambda x: x / x.sum() * 100) )
 
@@ -255,11 +211,9 @@ top5_pivot = top5_demog.pivot_table(
     index=['AREA_NAME', 'Vict_Sex'],
     columns='age_group',
     values='percent',
-    fill_value=0
+    fill_value=0,
+    observed=True
 )
-
-
-# In[142]:
 
 
 #Now we need to make the chart
@@ -277,7 +231,7 @@ pplot.ylabel('Percentage of Crimes by Age Group', fontsize=12, labelpad=10)
 pplot.xticks(rotation=45, ha='right', fontsize=10)
 pplot.tight_layout()
 
-text_color = '#D35400'
+text_color ='#D35400'
 
 ax = pplot.gca()
 for container in ax.containers:
@@ -294,9 +248,7 @@ for container in ax.containers:
                 color=text_color,
                 fontweight='bold'
             )
+pplot.show()
 
-
-# ### The overwhelming majority of crime is committed against adults (which makes sense as the age range is the greatest for adults)
-# ### There is also a relatively even distribution across the different locations.
-
-
+# The overwhelming majority of crime is committed against adults (which makes sense as the age range is the greatest for adults)
+# There is also a relatively even distribution across the different locations.
