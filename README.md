@@ -1,44 +1,53 @@
 # Data-Analytics-Portfolio
-This is a portfolio to show off my skills as a data analyst. Includes SQL and Python.  
-It includes data cleaning, analysis, and visualization tasks designed to demonstrate practical skills in handling real-world datasets.
 
-**Data Sets**
-Crime_Data_from_2020_to_Present.csv - This is data from a government website in the US that tracked crime data in Los Angeles, California from 2020 to 2025.
+This repository is a **portfolio project** demonstrating my skills as a data analyst. It includes **SQL and Python** work, showing data cleaning, analysis, and visualization of real-world crime datasets.
 
-Crime_Codes.csv - This is a key for the crime codes in the main data set. It includes the code, a string description of the code, the category and subcategory of the code. This table doesn't cover every single code but is what was publicly available.
+---
 
-MO_Codes.csv - This data set has the Modus Operandi codes, which describe different aspects of each crime listed. Some of the crimes contain multiple MO codes.
+## 📁 Data Sets
 
-**SQL**
+All CSV files are included in the `data/` folder.
 
-I wrote and ran the code in the Microsoft SQL Server Management Studio (21.6.17)
+- **Crime_Data_from_2020_to_Present.csv** – Crime data from Los Angeles, California, spanning 2020–2025.  
+- **Crime_Codes.csv** – Key for the crime codes in the main dataset, including code, description, category, and subcategory.  
+- **MO_Codes.csv** – Modus Operandi codes describing different aspects of each crime. Some crimes have multiple MO codes.
 
-In order to run the SQL code you will need to:
-1. Download 3 CSV files. 2 of them are listed here and the third can be downloaded from:
-   https://drive.google.com/file/d/1QPj582YPi00Sp0MuM9nwt6YZrm0EUXYo/view?usp=drive_link
-2. Create a new database titled "Portfolio"
-3. All 3 files must be imported as flat files into SQL
-4. The names of each table are:
+---
 
-Crime_Data_Raw = "Crime_Data_from_2020_to_Present.csv"
+## 🛠 SQL
 
-Crime_Codes = "Crime_Codes.csv"
+All SQL code was written and tested in **Microsoft SQL Server Management Studio (v21.6.17)**.
 
-MO_Codes = "MO_Codes.csv"
+### Steps to run:
 
-First run the file titled:  
-"Renaming_Columns.sql" - This renamed some of the columns in the main table to make them easier to understand.
+1. Create a new database called `Portfolio`.  
+2. Import all 3 CSV files as tables with the following names:
+   - `Crime_Data_Raw` → `Crime_Data_from_2020_to_Present.csv`  
+   - `Crime_Codes` → `Crime_Codes.csv`  
+   - `MO_Codes` → `MO_Codes.csv`  
 
-Then you can ran any and all parts of:  
-"CrimeStats.sql" - A look at different aspects of the crime stats. There are instructions inside for what each piece does.
+3. Run the file `Renaming_Columns.sql` first — it renames columns in the main table for clarity.  
+4. Then run `CrimeStats.sql` to explore different analyses. Instructions are included in the file.
 
-**Python**
-There are two options for running the python code.
+> All files are included in this repository, so no external downloads are needed.
 
-Option 1: Running the .py file.  
-You can download the 3 csv files and then update the directory in the read.csv commands to the path where you saved the files.
+---
 
-Option 2: Running in Jupyter Notebook  
-You can download the .ipynb and upload it to Jupyter Notebook along with the 3 csv files.
+## 🐍 Python
 
+All Python code works with the CSV files **already in the `data/` folder**. The scripts use **relative paths**, so you can clone the repo and run them without changing any directories.
 
+### Options to run:
+
+**Option 1: Running the Python script**
+
+python Crime_Stats.py
+
+**Option 2: Running the Jupyter Notebook**
+
+1. Open `Crime_Stats.ipynb` in **Jupyter Notebook** or **Jupyter Lab**.  
+2. Make sure the `data/` folder is in the same directory as the notebook (it is if you cloned the repo).  
+3. Run the cells — the notebook reads all CSVs and the ZIP file automatically using relative paths.  
+4. Explore analyses, charts, and outputs interactively.  
+
+> No directory changes are needed. The notebook is ready to run immediately after cloning the repo.
